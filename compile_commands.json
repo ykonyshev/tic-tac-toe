@@ -1,0 +1,22 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-I./src",
+      "-std=c++23",
+      "-march=native",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-O3",
+      "-c",
+      "-o",
+      "build/./src/main.cpp.o",
+      "src/main.cpp"
+    ],
+    "directory": "/mnt/data/code/Cpp/Mine/tic-tac-toe",
+    "file": "/mnt/data/code/Cpp/Mine/tic-tac-toe/src/main.cpp",
+    "output": "/mnt/data/code/Cpp/Mine/tic-tac-toe/build/src/main.cpp.o"
+  }
+]
