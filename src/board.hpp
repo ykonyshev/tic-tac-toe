@@ -1,0 +1,44 @@
+#include <array>
+#include <cstdint>
+#include <ostream>
+#include <set>
+
+enum class GameState : uint8_t {
+    PLAYING,
+    PLAYER_X_WON,
+    PLAYER_O_WON,
+    TIE,
+};
+
+enum class Field : uint8_t {
+    PLAYER_X,
+    PLAYER_O,
+    EMPTY,
+};
+
+std::ostream& operator<<(std::ostream& out, const Field& value);
+
+struct Board {
+    using Index = uint8_t;
+
+public:
+    constexpr static Index DIM = 3;
+    constexpr static Index SIZE = DIM * DIM;
+
+    std::set<Index> m_empty_fields;
+
+    Board();
+
+    const Field& operator[](Index index) const { return m_state[index]; };
+    void make_move(Index index, Field new_value);
+
+    friend Index normal_bot(Board& board, Field plays_as);
+    friend Index hard_bot(Board& board, Field plays_as);
+
+    void print() const;
+    GameState get_game_state();
+    bool is_winner(Field player_field);
+
+private:
+    std::array<Field, SIZE> m_state;
+};

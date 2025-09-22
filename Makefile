@@ -1,9 +1,9 @@
 TARGET_EXEC := main
-CPPC := g++
+CPPC := clang++
 STD = c++23
 # CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -Werror -O3
 # CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -O3
-CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -Og -ggdb3 -fanalyzer -fsanitize=address,leak
+CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -Og -ggdb3 -fsanitize=address,leak
 # CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -O0 -ggdb3 -fsanitize=address,leak
 
 # -Og behaves the similarly to -O1 in terms of a optimizations apart from

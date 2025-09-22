@@ -1,15 +1,16 @@
 [
   {
     "arguments": [
-      "/usr/bin/g++",
+      "/usr/bin/clang++",
       "-I./src",
       "-std=c++23",
       "-march=native",
       "-Wall",
       "-Wextra",
       "-Wpedantic",
-      "-Werror",
-      "-O3",
+      "-Og",
+      "-ggdb3",
+      "-fsanitize=address,leak",
       "-c",
       "-o",
       "build/./src/main.cpp.o",
