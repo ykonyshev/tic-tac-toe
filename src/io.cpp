@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <io.hpp>
 #include <print>
 
@@ -5,6 +6,11 @@ int32_t io::read_int32(std::istream& from, std::string& buffer) {
     while (true) {
         std::print(">>> ");
         std::getline(from, buffer);
+
+        // Exit if Ctrl+D (unix-like) or Ctrl+Z (DOS) was pressed
+        if (from.eof()) {
+            std::exit(1);
+        }
 
         try {
             return std::stoi(buffer);

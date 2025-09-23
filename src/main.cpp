@@ -1,3 +1,4 @@
+#include "timer.hpp"
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -91,12 +92,9 @@ Board::Index random_bot(Board& board, Field /*plays_as*/) {
     return *it;
 }
 
-GameState get_win_state_for_field(Field for_) {
-    return for_ == Field::PLAYER_X ? GameState::PLAYER_X_WON
-                                   : GameState::PLAYER_O_WON;
-}
+inline GameState get_win_state_for_field(Field for_) { return (GameState)for_; }
 
-Field get_opponent(Field for_) {
+inline Field get_opponent(Field for_) {
     return for_ == Field::PLAYER_X ? Field::PLAYER_O : Field::PLAYER_X;
 }
 
@@ -144,18 +142,21 @@ struct ScorePair {
 };
 
 ScorePair minimax(Board& board, Field current_player, Field opponent,
-                  Field maximizing_player,
-                  GameState maximizing_player_win_state,
-                  Field minimizing_player,
-                  GameState minimizing_player_win_state) {
+                  Field maximizing_player, Field minimizing_player) {
     // Checking whether this is the end of this branch
+    // A system of scores for each of the possible outcomes is defined:
+    // A tie, meaning, neither player wins: 0
+    // A win of the player that we are maximizing the scores for: 1
+    // A loss of the player that we are maximizing the scores for: -1
     GameState state = board.get_game_state();
     if (state != GameState::PLAYING) {
-        int8_t score = 0;
-        if (state == maximizing_player_win_state) {
-            score = 1;
-        } else if (state == minimizing_player_win_state) {
-            score = -1;
+        // Using a cast to an integer thanks to the value assigned to enum
+        // variants to avoid comparison
+        auto score = (int8_t)state;
+        if (maximizing_player != Field::PLAYER_O) {
+            // Need to flip the value if the assumption that the bot plays for
+            // "O" is incorrect
+            score *= -1;
         }
 
         return ScorePair{
@@ -173,32 +174,38 @@ ScorePair minimax(Board& board, Field current_player, Field opponent,
 
         ScorePair this_move_score_pair =
             minimax(board_copy, opponent, current_player, maximizing_player,
-                    maximizing_player_win_state, minimizing_player,
-                    minimizing_player_win_state);
+                    minimizing_player);
 
         move_scores.push_back(
             ScorePair{.score = this_move_score_pair.score, .move = valid_move});
     }
 
+    // Returning the move that yields the highest score for the current player
     if (maximizing_player == current_player) {
         ScorePair max_score_move =
             *std::max_element(move_scores.begin(), move_scores.end());
         return max_score_move;
-    } else {
-        ScorePair min_score_move =
-            *std::min_element(move_scores.begin(), move_scores.end());
-        return min_score_move;
     }
+
+    // Returning the move that yields the lowest score for the opponent
+    ScorePair min_score_move =
+        *std::min_element(move_scores.begin(), move_scores.end());
+    return min_score_move;
 }
 
 Board::Index hard_bot(Board& board, Field plays_as) {
     Board board_copy = board;
     Field opponent = get_opponent(plays_as);
 
-    return minimax(board_copy, plays_as, opponent, plays_as,
-                   get_win_state_for_field(plays_as), opponent,
-                   get_win_state_for_field(opponent))
-        .move;
+    Timer timer;
+    timer.start();
+    ScorePair best_move_pair =
+        minimax(board_copy, plays_as, opponent, plays_as, opponent);
+    double elapsed_milllis = timer.end();
+
+    std::println("Took {:.3f} ms to compute the next move.", elapsed_milllis);
+
+    return best_move_pair.move;
 }
 
 using BotFunction = uint8_t (*)(Board&, Field);

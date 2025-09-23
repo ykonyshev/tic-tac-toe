@@ -1,19 +1,23 @@
+#pragma once
+
 #include <array>
 #include <cstdint>
 #include <ostream>
 #include <set>
 
-enum class GameState : uint8_t {
-    PLAYING,
-    PLAYER_X_WON,
-    PLAYER_O_WON,
-    TIE,
+// The values for the `Field` of a given player and the corresponding player's
+// win `GameState` must be the same to enabled casting between one another
+enum class GameState : int8_t {
+    PLAYING = 3,
+    PLAYER_X_WON = -1,
+    PLAYER_O_WON = 1,
+    TIE = 0,
 };
 
-enum class Field : uint8_t {
-    PLAYER_X,
-    PLAYER_O,
-    EMPTY,
+enum class Field : int8_t {
+    EMPTY = 0,
+    PLAYER_X = -1,
+    PLAYER_O = 1,
 };
 
 std::ostream& operator<<(std::ostream& out, const Field& value);
