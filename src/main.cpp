@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
+#include <optional>
 #include <ostream>
 #include <print>
 #include <random>
@@ -10,6 +12,8 @@
 
 #include <board.hpp>
 #include <io.hpp>
+#include <tuple>
+#include <utility>
 
 Board::Index get_move_index(const Board& board, std::string& buffer) {
     while (true) {
@@ -29,7 +33,7 @@ Board::Index get_move_index(const Board& board, std::string& buffer) {
 
 void play_against_person(std::string& buffer) {
     Board board;
-    board.print();
+    std::cout << board;
 
     bool is_x_turn = true;
     while (true) {
@@ -46,7 +50,7 @@ void play_against_person(std::string& buffer) {
             board.make_move(move_index, Field::PLAYER_O);
         }
 
-        board.print();
+        std::cout << board;
 
         GameState game_state = board.get_game_state();
         switch (game_state) {
@@ -92,10 +96,13 @@ GameState get_win_state_for_field(Field for_) {
                                    : GameState::PLAYER_O_WON;
 }
 
+Field get_opponent(Field for_) {
+    return for_ == Field::PLAYER_X ? Field::PLAYER_O : Field::PLAYER_X;
+}
+
 Board::Index normal_bot(Board& board, Field plays_as) {
     GameState plays_as_win_state = get_win_state_for_field(plays_as);
-    Field opponent = plays_as == Field::PLAYER_X ? Field::PLAYER_O
-                                                 : Field::PLAYER_X;
+    Field opponent = get_opponent(plays_as);
     GameState opponent_win_state = get_win_state_for_field(opponent);
 
     // If there is only one move to make, make that move
@@ -127,9 +134,71 @@ Board::Index normal_bot(Board& board, Field plays_as) {
     return random_bot(board, plays_as);
 }
 
+struct ScorePair {
+    int8_t score;
+    Board::Index move;
+
+    friend bool operator<(const ScorePair& lhs, const ScorePair& rhs) {
+        return lhs.score < rhs.score;
+    }
+};
+
+ScorePair minimax(Board& board, Field current_player, Field opponent,
+                  Field maximizing_player,
+                  GameState maximizing_player_win_state,
+                  Field minimizing_player,
+                  GameState minimizing_player_win_state) {
+    // Checking whether this is the end of this branch
+    GameState state = board.get_game_state();
+    if (state != GameState::PLAYING) {
+        int8_t score = 0;
+        if (state == maximizing_player_win_state) {
+            score = 1;
+        } else if (state == minimizing_player_win_state) {
+            score = -1;
+        }
+
+        return ScorePair{
+            .score = score,
+            .move = Board::NONE_INDEX,
+        };
+    }
+
+    std::vector<ScorePair> move_scores;
+    move_scores.reserve(board.m_empty_fields.size());
+
+    for (Board::Index valid_move : board.m_empty_fields) {
+        Board board_copy = board;
+        board_copy.make_move(valid_move, current_player);
+
+        ScorePair this_move_score_pair =
+            minimax(board_copy, opponent, current_player, maximizing_player,
+                    maximizing_player_win_state, minimizing_player,
+                    minimizing_player_win_state);
+
+        move_scores.push_back(
+            ScorePair{.score = this_move_score_pair.score, .move = valid_move});
+    }
+
+    if (maximizing_player == current_player) {
+        ScorePair max_score_move =
+            *std::max_element(move_scores.begin(), move_scores.end());
+        return max_score_move;
+    } else {
+        ScorePair min_score_move =
+            *std::min_element(move_scores.begin(), move_scores.end());
+        return min_score_move;
+    }
+}
+
 Board::Index hard_bot(Board& board, Field plays_as) {
-    // TODO: Implement
-    return 0;
+    Board board_copy = board;
+    Field opponent = get_opponent(plays_as);
+
+    return minimax(board_copy, plays_as, opponent, plays_as,
+                   get_win_state_for_field(plays_as), opponent,
+                   get_win_state_for_field(opponent))
+        .move;
 }
 
 using BotFunction = uint8_t (*)(Board&, Field);
@@ -159,7 +228,7 @@ void play_against_bot(std::string& buffer) {
     BotFunction bot_function = diffuctly.func;
 
     Board board;
-    board.print();
+    std::cout << board;
 
     bool is_x_turn = true;
     while (true) {
@@ -172,7 +241,7 @@ void play_against_bot(std::string& buffer) {
             board.make_move(move_index, Field::PLAYER_O);
         }
 
-        board.print();
+        std::cout << board;
 
         GameState game_state = board.get_game_state();
         switch (game_state) {
@@ -210,6 +279,9 @@ static const auto MODES = std::to_array<PlayMode>(
       .description = "Play against another person."},
      {.func = play_against_bot, .description = "Play against a bot."}});
 
+// TODO: Multiplayer over the network
+// TODO: Refactor all of the `std::cout` usages to `std::print` or
+// `std::println`
 int main() {
     std::string buffer;
 

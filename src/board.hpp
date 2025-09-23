@@ -19,11 +19,12 @@ enum class Field : uint8_t {
 std::ostream& operator<<(std::ostream& out, const Field& value);
 
 struct Board {
+public:
     using Index = uint8_t;
 
-public:
     constexpr static Index DIM = 3;
     constexpr static Index SIZE = DIM * DIM;
+    constexpr static Index NONE_INDEX = SIZE;
 
     std::set<Index> m_empty_fields;
 
@@ -35,7 +36,7 @@ public:
     friend Index normal_bot(Board& board, Field plays_as);
     friend Index hard_bot(Board& board, Field plays_as);
 
-    void print() const;
+    friend std::ostream& operator<<(std::ostream& out, const Board& object);
     GameState get_game_state();
     bool is_winner(Field player_field);
 

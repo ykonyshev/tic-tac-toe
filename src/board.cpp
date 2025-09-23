@@ -30,37 +30,38 @@ Board::Board() : m_state(std::array<Field, SIZE>()) {
     }
 }
 
-void Board::print() const {
-    std::cout << '\n';
-    for (size_t row = 0; row < DIM; ++row) {
-        for (size_t col = 0; col < DIM; ++col) {
-            size_t index = (row * DIM) + col;
-            const Field value = m_state[index];
+std::ostream& operator<<(std::ostream& out, const Board& object) {
+    out << '\n';
+    for (size_t row = 0; row < Board::DIM; ++row) {
+        for (size_t col = 0; col < Board::DIM; ++col) {
+            size_t index = (row * Board::DIM) + col;
+            const Field value = object.m_state[index];
             if (col == 0) {
-                std::cout << " ";
+                out << " ";
             } else {
-                std::cout << " | ";
+                out << " | ";
             }
 
             if (value != Field::EMPTY) {
-                std::cout << value;
+                out << value;
             } else {
-                std::cout << index;
+                out << index;
             }
         }
 
-        std::cout << '\n';
+        out << '\n';
 
-        if (row < DIM - 1) {
-            for (size_t i = 0; i < DIM - 1; ++i) {
-                std::cout << "----";
+        if (row < Board::DIM - 1) {
+            for (size_t i = 0; i < Board::DIM - 1; ++i) {
+                out << "----";
             }
 
-            std::cout << "---" << '\n';
+            out << "---" << '\n';
         }
     }
 
-    std::cout << '\n';
+    out << '\n';
+    return out;
 }
 
 GameState Board::get_game_state() {

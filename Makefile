@@ -2,8 +2,8 @@ TARGET_EXEC := main
 CPPC := clang++
 STD = c++23
 # CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -Werror -O3
-# CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -O3
-CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -Og -ggdb3 -fsanitize=address,leak
+CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -O3
+# CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -Og -ggdb3 -fsanitize=address,leak
 # CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -O0 -ggdb3 -fsanitize=address,leak
 
 # -Og behaves the similarly to -O1 in terms of a optimizations apart from
@@ -50,6 +50,8 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # Relevant reference:
 # https://gcc.gnu.org/onlinedocs/gcc-14.2.0/gcc/Preprocessor-Options.html#index-M
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
+
+all: $(BUILD_DIR)/$(TARGET_EXEC)
 
 # The final step that combines all of the object files together to generate the
 # executable. The linking step.
