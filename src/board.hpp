@@ -5,19 +5,27 @@
 #include <ostream>
 #include <set>
 
+static const int8_t MAX_SCORE = 1;
+static const int8_t MIN_SCORE = -1;
+static const int8_t NEUTRAL_SCORE = 0;
+
 // The values for the `Field` of a given player and the corresponding player's
 // win `GameState` must be the same to enabled casting between one another
+//
+// The game state values apart from the `PLAYING` state also serve as scores for
+// the minimax algorithm implementation. The algorithm tries to optimize for the
+// highest score.
 enum class GameState : int8_t {
     PLAYING = 3,
-    PLAYER_X_WON = -1,
-    PLAYER_O_WON = 1,
-    TIE = 0,
+    PLAYER_X_WON = MIN_SCORE,
+    PLAYER_O_WON = MAX_SCORE,
+    TIE = NEUTRAL_SCORE,
 };
 
 enum class Field : int8_t {
     EMPTY = 0,
-    PLAYER_X = -1,
-    PLAYER_O = 1,
+    PLAYER_X = MIN_SCORE,
+    PLAYER_O = MAX_SCORE,
 };
 
 std::ostream& operator<<(std::ostream& out, const Field& value);
