@@ -13,7 +13,7 @@ struct BotDifficulty {
     BotFunction func;
 };
 
-const auto DIFFICULTY = std::to_array<BotDifficulty>({
+const auto BOT_DIFFICULTIES = std::to_array<BotDifficulty>({
     {.description = "Easy", .func = random_bot},
     {.description = "Normal", .func = normal_bot},
     {.description = "Hard", .func = hard_bot},

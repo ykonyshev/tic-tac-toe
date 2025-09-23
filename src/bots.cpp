@@ -3,7 +3,6 @@
 
 #include <board.hpp>
 #include <bots.hpp>
-#include <timer.hpp>
 
 namespace {
 static std::random_device RANDOM_DEVICE;
@@ -95,10 +94,12 @@ ScoredMove minimax(Board& board, Field current_player, Field opponent,
         };
     }
 
+    // NOTE: Could attempt to reuse the vector somehow
     std::vector<ScoredMove> move_scores;
     move_scores.reserve(board.m_empty_fields.size());
 
     for (Board::Index valid_move : board.m_empty_fields) {
+        // NOTE: The main point of slowdown
         Board board_copy = board;
         board_copy.make_move(valid_move, current_player);
 
@@ -127,13 +128,8 @@ Board::Index hard_bot(Board& board, Field plays_as) {
     Board board_copy = board;
     Field opponent = get_opponent(plays_as);
 
-    Timer timer;
-    timer.start();
     ScoredMove best_move_pair =
         minimax(board_copy, plays_as, opponent, plays_as);
-    double elapsed_milllis = timer.end();
-
-    std::println("Took {:.2f} ms to compute the next move.", elapsed_milllis);
 
     return best_move_pair.move;
 }
