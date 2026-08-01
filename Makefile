@@ -1,8 +1,8 @@
 TARGET_EXEC := main
-CPPC := clang++
+CXX := clang++
 STD = c++23
 # CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -Werror -O3
-CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -O3
+CPPCFLAGS := -std=$(STD) -march=x86-64 -Wall -Wextra -Wpedantic -O3
 # CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -Og -ggdb3 -fsanitize=address,leak
 # CPPCFLAGS := -std=$(STD) -march=native -Wall -Wextra -Wpedantic -O0 -ggdb3 -fsanitize=address,leak
 
@@ -56,7 +56,7 @@ all: $(BUILD_DIR)/$(TARGET_EXEC)
 # The final step that combines all of the object files together to generate the
 # executable. The linking step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CPPC) $(CPPCFLAGS) $(OBJS) -o $@ $(LDFLAGS)
+	$(CXX) $(CPPCFLAGS) $(OBJS) -o $@ $(LDFLAGS)
 
 # General targets for all the object files, primarily used the first time
 # to generate the .d Makefiles, afterwards the more specific targets defined
@@ -64,7 +64,7 @@ $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 # targets instead of a wildcard).
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
-	$(CPPC) $(CPPFLAGS) $(CPPCFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CPPCFLAGS) -c $< -o $@
 
 .PHONY: clean format lint generate_compile_commands
 clean:
